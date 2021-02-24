@@ -2,46 +2,50 @@
 class VEHICLE {
 public:
     VEHICLE() {
+        Diameter = 50;
+        Pos.x = width / 2;
+        Pos.y = height / 2;
+        Vel.x = 0;
+        Vel.y = 0;
         MaxSpeed = 10;
         MaxForce = 1;
-        Pos.x = random(1000.0f);// % 1000;
-        Pos.y = random(1000.0f);// % 1000;
-        float deg = random(360.0f);// % 360;
-        angleMode(DEGREES);
-        Vel.x = cos(deg) * MaxSpeed;
-        Vel.y = sin(deg) * MaxSpeed;
-        Diameter = 50;
     }
     void chase(VECTOR2 targetPos) {
-        VECTOR2 desiredVel = targetPos - Pos;
-        float d = length(desiredVel);
-        float speed;
-        if (d > 100) {
-            speed = MaxSpeed;
-        }
-        else{
-            speed = map(d, 0, 100, 0, MaxSpeed);
-        }
-        //if (d < MaxSpeed) {
-        //    speed = 0;
-        //}
-        desiredVel *= (speed/d);
-        //Vel = desiredVel;
+        //-----最終的に加速度を求める-----
 
-        Acc = desiredVel - Vel;
-        d = length(Acc);
-        if (d > MaxForce) {
-            Acc *= (MaxForce/d);
+        //まず望まれるベクトルを求める
+        VECTOR2 desiredVel = targetPos - Pos;
+        float distance = length(desiredVel);
+        float speed = MaxSpeed;
+        if (distance < 100) {
+            //（100より近いなら）距離に応じてスピードを遅くする
+            speed = MaxSpeed * distance / 100;
         }
+        fill(0);
+        text(speed, 0, 20);
+        //desiredVelを単位ベクトル化してspeedを掛ける
+        desiredVel *= speed / distance;
+      
+        //加速度ベクトルを求める
+        Acc = desiredVel - Vel;
+        distance = length(Acc);
+        text(distance, 0, 40);
+        if (distance > MaxForce) {
+            Acc *= MaxForce / distance;
+        }
+        
     }
     void move() {
         Pos += Vel;
         Vel += Acc;
-        //Acc *= 0;
     }
     void draw() {
-        fill(160, 200, 255);
-        circle(Pos.x, Pos.y, Diameter);
+        fill(255, 255, 60);
+        strokeWeight(1);
+        rectMode(CENTER);
+        rect(Pos.x, Pos.y, 60,100,atan2(-Vel.x,Vel.y));
+        strokeWeight(5);
+        line(Pos.x, Pos.y, Pos.x + Vel.x*2, Pos.y + Vel.y*2);
     }
 private:
     float MaxSpeed;
@@ -51,65 +55,22 @@ private:
     VECTOR2 Acc;
     float Diameter;
 };
-
-/*
-Vehicle.prototype.behaviors = function() {
-    arrive = this.arrive(this.target);
-    this.applyForce(arrive);
-
-    mouse = createVector(mouseX, mouseY);
-    flee = this.flee(mouse);
-    this.applyForce(flee);
-}
-Vehicle.prototype.arrive = function(target) {
-    desired = p5.Vector.sub(target, this.pos);
-    d = desired.mag();
-    speed = this.maxspeed;
-    if (d < 100) {
-        speed = map(d, 0, 100, 0, this.maxspeed);
-    }
-    desired.setMag(speed);
-    steer = p5.Vector.sub(desired, this.vel);
-    steer.limit(this.maxforce);
-    return steer;
-}
-Vehicle.prototype.flee = function(target) {
-    desired = p5.Vector.sub(target, this.pos);
-    d = desired.mag();
-    //steer.mult(0); 
-    if (d < 80) {
-        desired.setMag(this.maxspeed);
-        desired.mult(-1);
-        steer = p5.Vector.sub(desired, this.vel);
-        steer.limit(this.maxforce);
-        steer.mult(10);
-    }
-    return steer;
-}
-Vehicle.prototype.applyForce = function(f) {
-    this.acc.add(f);
-}
-
-Vehicle.prototype.update = function() {
-    this.pos.add(this.vel);
-    this.vel.add(this.acc);
-    this.acc.mult(0);
-}
-
-Vehicle.prototype.show = function() {
-    stroke(255);
-    strokeWeight(this.r);
-    point(this.pos.x, this.pos.y);
-}
-*/
-
 void gmain() {
     window(1000, 1000);
     VEHICLE vehicle;
-    while (notQuit){
-        vehicle.chase(VECTOR2(mouseX, mouseY));
+    float deg = 0;
+    angleMode(DEGREES);
+    while (notQuit) {
+        clear(90);
+        float x = cos(deg) * 400 + width / 2;
+        float y = -sin(deg * 2) * 400 + height / 2;
+        deg += 2;
+        vehicle.chase(VECTOR2(x, y));
         vehicle.move();
-        clear(220);
+        line(0, height / 2, width, height / 2);
+        line(width / 2, 0, width / 2, height);
         vehicle.draw();
+        text(130.0 / 1700000, 0, 100);
     }
 }
+
