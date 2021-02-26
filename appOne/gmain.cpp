@@ -2,8 +2,6 @@
 class VEHICLE {
 public:
     VEHICLE() {
-        Pos.x = width / 2+10;
-        Pos.y = height / 2+10;
         MaxSpeed = 10;
         MaxForce = 0.6f;
     }
@@ -13,7 +11,7 @@ public:
         //まず望まれるベクトルを求める
         VECTOR2 desiredVel = targetPos - Pos;
         float distance = length(desiredVel);
-        if (distance >= 0.01) {
+        if (distance >= 0.1) {
             float speed = MaxSpeed;
             if (distance < 100) {
                 //（100より近いなら）距離に応じてスピードを遅くする
@@ -54,9 +52,10 @@ public:
         fill(255, 255, 60);
         strokeWeight(1);
         rectMode(CENTER);
-        rect(Pos.x, Pos.y, 60,100,atan2(-Vel.x,Vel.y));
+        rect(Pos.x, Pos.y, 60, 100, atan2(-Vel.x, Vel.y));
+        circle(Pos.x, Pos.y, 50);
         strokeWeight(5);
-        line(Pos.x, Pos.y, Pos.x + Vel.x*20, Pos.y + Vel.y*20);
+        line(Pos.x, Pos.y, Pos.x + Vel.x * 20, Pos.y + Vel.y * 20);
     }
 private:
     float MaxSpeed;
